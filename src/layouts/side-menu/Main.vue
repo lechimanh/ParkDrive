@@ -1,5 +1,8 @@
 <template>
     <div class="py-2 -mt-2">
+        <DarkModeSwitcher />
+        <MainColorSwitcher />
+        <MobileMenu />
         <TopBar />
         <div class="wrapper">
             <div class="wrapper-box">
@@ -26,13 +29,12 @@
                                     </div>
                                     <div class="side-menu__title">
                                         {{ menu.title }}
-                                        <div
-                                            v-if="menu.subMenu"
-                                            class="side-menu__sub-icon"
-                                            :class="{ 'transform rotate-180': menu.activeDropdown }"
-                                        ></div>
+                                        <div v-if="menu.subMenu" class="side-menu__sub-icon" :class="{ 'transform rotate-180': menu.activeDropdown }">
+                                            <ChevronDownIcon />
+                                        </div>
                                     </div>
                                 </SideMenuTooltip>
+
                                 <!-- BEGIN: Second Child -->
                                 <transition @enter="enter" @leave="leave">
                                     <ul v-if="menu.subMenu && menu.activeDropdown">
@@ -44,8 +46,11 @@
                                                 class="side-menu"
                                                 :class="{ 'side-menu--active': subMenu.active }"
                                                 @click="linkTo(subMenu, router, $event)"
+                                                v-if="!parseInt(usertype) || !subMenu.id || menus.includes(subMenu.id)"
                                             >
-                                                <div class="side-menu__icon"></div>
+                                                <div class="side-menu__icon">
+                                                    <component :is="subMenu.icon" />
+                                                </div>
                                                 <div class="side-menu__title">
                                                     {{ subMenu.title }}
                                                     <div
@@ -54,7 +59,9 @@
                                                         :class="{
                                                             'transform rotate-180': subMenu.activeDropdown
                                                         }"
-                                                    ></div>
+                                                    >
+                                                        <ChevronDownIcon />
+                                                    </div>
                                                 </div>
                                             </SideMenuTooltip>
                                             <!-- BEGIN: Third Child -->
@@ -76,8 +83,11 @@
                                                                 'side-menu--active': lastSubMenu.active
                                                             }"
                                                             @click="linkTo(lastSubMenu, router, $event)"
+                                                            v-if="!parseInt(usertype) || !lastSubMenu.id || menus.includes(lastSubMenu.id)"
                                                         >
-                                                            <div class="side-menu__icon"></div>
+                                                            <div class="side-menu__icon">
+                                                                <component :is="lastSubMenu.icon" />
+                                                            </div>
                                                             <div class="side-menu__title">
                                                                 {{ lastSubMenu.title }}
                                                             </div>
@@ -112,6 +122,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { helper as $h } from '@/utils/helper'
 import { useSideMenuStore } from '@/stores/side-menu'
 import TopBar from '@/components/top-bar/Main.vue'
+import MobileMenu from '@/components/mobile-menu/Main.vue'
+import DarkModeSwitcher from '@/components/dark-mode-switcher/Main.vue'
+import MainColorSwitcher from '@/components/main-color-switcher/Main.vue'
 import SideMenuTooltip from '@/components/side-menu-tooltip/Main.vue'
 import { linkTo, nestedMenu, enter, leave } from './index'
 import dom from '@left4code/tw-starter/dist/js/dom'
@@ -121,7 +134,6 @@ const router = useRouter()
 const formattedMenu = ref([])
 const sideMenuStore = useSideMenuStore()
 const sideMenu = computed(() => nestedMenu(sideMenuStore.menu, route))
-
 provide('forceActiveMenu', (pageName) => {
     route.forceActiveMenu = pageName
     formattedMenu.value = $h.toRaw(sideMenu.value)
@@ -139,4 +151,13 @@ onMounted(() => {
     dom('body').removeClass('error-page').removeClass('login').addClass('main')
     formattedMenu.value = $h.toRaw(sideMenu.value)
 })
+</script>
+
+<script>
+import { mapGetters } from 'vuex'
+export default {
+    computed: {
+        ...mapGetters('auth', ['menus', 'usertype'])
+    }
+}
 </script>

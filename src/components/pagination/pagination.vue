@@ -1,109 +1,109 @@
 <template>
-    <nav>
-      <ul class="pagination">
-        <li v-if="currentPage > 1">
-          <a @click="currentPage--">«</a>
-        </li>
-        <li v-for="(n, index) in pages" :key="index" :class="{active: n === currentPage}">
-          <a v-if="n !== '...'" @click="currentPage = n">{{ n }}</a>
-          <span v-else>...</span>
-        </li>
-        <li v-if="currentPage < totalPages">
-          <a @click="currentPage++">»</a>
-        </li>
-      </ul>
-    </nav>
-  </template>
+    <nav class="w-full sm:w-auto ">
+        <ul class="pagination">
   
-  <script>
-  export default {
-    name: 'Pagination',
+
+            <li class="page-item">
+                <button class="page-link" @click="onClickPreviousPage" :disabled="isInFirstPage">
+                    <ChevronLeftIcon class="w-4 h-4" />
+                </button>
+            </li>
+
+            <!-- Visible Buttons Start -->
+
+            <li class="page-item" v-for="page in pages" :key="page.name" :class="{ 'active': page.isDisabled }">
+                <button class="page-link" type="button" @click="onClickPage(page.name)">
+                    {{ page.name }}
+                </button>
+            </li>
+
+            <!-- Visible Buttons End -->
+
+            <li class="page-item">
+                <button class="page-link" type="button" @click="onClickNextPage" :disabled="isInLastPage">
+                    <ChevronRightIcon class="w-4 h-4" />
+                </button>
+            </li>
+
+        </ul>
+    </nav>
+</template>
+
+<script>
+export default {
     props: {
-      currentPage: {
-        type: Number,
-        required: true
-      },
-      totalPages: {
-        type: Number,
-        required: true
-      }
+        maxVisibleButtons: {
+            type: Number,
+            required: false,
+            default: 3,
+        },
+        totalPages: {
+            type: Number,
+            required: true,
+        },
+        perPage: {
+            type: Number,
+            required: true,
+        },
+        currentPage: {
+            type: Number,
+            required: true,
+        },
     },
     computed: {
-  pages() {
-    const arr = [];
-    if (this.totalPages <= 10) {
-      for (let i = 1; i <= this.totalPages; i++) {
-        arr.push(i);
-      }
-    } else {
-      if (this.currentPage <= 6) {
-        for (let i = 1; i <= 7; i++) {
-          arr.push(i);
-        }
-        arr.push('...');
-        arr.push(this.totalPages - 1);
-        arr.push(this.totalPages);
-      } else if (this.currentPage >= this.totalPages - 5) {
-        arr.push(1);
-        arr.push(2);
-        arr.push('...');
-        for (let i = this.totalPages - 6; i <= this.totalPages; i++) {
-          arr.push(i);
-        }
-      } else {
-        arr.push(1);
-        arr.push(2);
-        arr.push('...');
-        arr.push(this.currentPage - 1);
-        arr.push(this.currentPage);
-        arr.push(this.currentPage + 1);
-        arr.push('...');
-        arr.push(this.totalPages - 1);
-        arr.push(this.totalPages);
-      }
-    }
-    return arr;
-  }
-},
-watch: {
-    currentPage() {
-      this.$emit('page-changed', this.currentPage);
-    }
-  }
+        startPage() {
+            // When on the first page
 
-  }
-  </script>
-  
-  <style>
-  .pagination {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-  }
-  
-  .pagination li {
-    margin: 0 5px;
-  }
-  
-  .pagination a,
-  .pagination span {
-    display: block;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    color: #333;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  
-  .pagination a:hover,
-  .pagination a.active,
-  .pagination li.active {
-    background-color: #1A3175;
-    color: #fff;
-  }
-  .pagination li.active a{
-    color: #fff;
-  }
-  </style>
-  
+            if (this.currentPage === 1) {
+                return 1;
+            }
+            // When on the last page
+            // if (this.currentPage === this.totalPages) {
+            //     return this.totalPages - this.maxVisibleButtons;
+            // }
+            // When inbetween
+            return this.currentPage - 1;
+        },
+        pages() {
+            const range = [];
+
+            for (
+                let i = this.startPage;
+                i <=
+                Math.min(this.startPage + this.maxVisibleButtons - 1, this.totalPages);
+                i++
+            ) {
+                range.push({
+                    name: i,
+                    isDisabled: i === this.currentPage,
+                });
+            }
+
+            return range;
+        },
+        isInFirstPage() {
+            return this.currentPage === 1;
+        },
+        isInLastPage() {
+            return this.currentPage === Number(this.totalPages);
+        },
+    },
+    methods: {
+        onClickFirstPage() {
+            this.$emit('pagechanged', 1);
+        },
+        onClickPreviousPage() {
+            this.$emit('pagechanged', this.currentPage - 1);
+        },
+        onClickPage(page) {
+            this.$emit('pagechanged', page);
+        },
+        onClickNextPage() {
+            this.$emit('pagechanged', this.currentPage + 1);
+        },
+        onClickLastPage() {
+            this.$emit('pagechanged', this.totalPages);
+        }
+    }
+};
+</script>

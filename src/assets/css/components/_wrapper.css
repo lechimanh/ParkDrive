@@ -1,5 +1,16 @@
 .wrapper {
   @apply relative;
+  &:before {
+    content: "";
+    width: 95%;
+    z-index: -1;
+    transform: translatey(35px);
+    animation: 0.4s intro-wrapper-animation ease-in-out 0.33333s;
+    animation-fill-mode: forwards;
+    animation-delay: 0.1s;
+    border-radius: 1.3rem;
+    @apply bg-white/10 h-full -mt-4 absolute mx-auto inset-x-0 opacity-0 dark:bg-darkmode-400/50;
+  }
   &.wrapper--top-nav {
     .wrapper-box {
       padding-top: 80px;

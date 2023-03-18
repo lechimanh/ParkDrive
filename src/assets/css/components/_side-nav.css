@@ -1,5 +1,5 @@
 .side-nav {
-  @apply w-[250px] px-5 pt-8 pb-16 overflow-x-hidden;
+  @apply w-[290px] px-5 pt-8 pb-16 overflow-x-hidden;
   @media (max-width: calc(theme("screens.xl") - 1px)) {
     @apply w-[105px];
   }
