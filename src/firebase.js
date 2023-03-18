@@ -70,3 +70,32 @@ export const useLoadParking = () => {
     onUnmounted(close)
     return park
 }
+
+const parkingSlotCollection = db.collection('parkingSlots')
+
+export const createParkingSlot = (park) => {
+    return parkingSlotCollection.add(park)
+}
+export const getParkingSlot = async (id) => {
+    const park = await parkingSlotCollection.doc(id).get()
+    return park.exists ? park.data() : null
+}
+export const updateParkingSlot = (id, park) => {
+    return parkingSlotCollection.doc(id).update(park)
+}
+export const deleteParkingSlot = (id) => {
+    return parkingSlotCollection.doc(id).delete()
+}
+
+export const getAllParkingLotsSlot = () => {
+    const parkingLotsRef = db.collection('parkingSlot')
+    return parkingLotsRef
+}
+export const useLoadParkingSlot = () => {
+    const park = ref([])
+    const close = parkingSlotCollection.onSnapshot((snapshot) => {
+        park.value = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+    })
+    onUnmounted(close)
+    return park
+}

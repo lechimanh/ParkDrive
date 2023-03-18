@@ -20,6 +20,24 @@ export const useSideMenuStore = defineStore('sideMenu', {
                         title: 'Tạo bãi đỗ xe'
                     }
                 ]
+            },
+            {
+                icon: 'GiftIcon',
+                pageName: 'parking-slot',
+                title: 'Quản lý chổ để xe',
+                subMenu: [
+                    {
+                        icon: 'LayersIcon',
+                        pageName: 'list-parkingslot',
+
+                        title: 'Danh sách chổ để xe'
+                    },
+                    {
+                        icon: 'FileTextIcon',
+                        pageName: 'create-parkingslot',
+                        title: 'Tạo chổ để xe'
+                    }
+                ]
             }
         ]
     })

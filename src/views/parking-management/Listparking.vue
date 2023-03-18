@@ -3,7 +3,7 @@
         <h2 class="intro-y text-lg font-medium mt-4 mb-5">Danh sách bãi đỗ xe</h2>
         <div class="grid grid-cols-12 gap-6 mt-5">
             <div class="intro-y col-span-12 flex flex-wrap xl:flex-nowrap items-center mt-2">
-                <button class="btn btn-primary shadow-md mr-2">Thêm</button>
+                <button class="btn btn-primary shadow-md mr-2" @click="goToCreateParking()">Thêm</button>
             </div>
             <div class="intro-y col-span-12 overflow-auto 2xl:overflow-visible">
                 <table class="table table-report -mt-2">
@@ -28,7 +28,7 @@
 
                             <td class="table-report__action w-30">
                                 <div class="flex justify-center items-center">
-                                    <a class="flex items-center mr-3 text-primary" href="javascript:;">
+                                    <a class="flex items-center mr-3 text-primary" href="javascript:;" @click="updateParking(item.id)">
                                         <EditIcon class="w-4 h-4 mr-1" />
                                     </a>
                                     <a class="flex items-center text-danger" href="javascript:;" @click="deleteParking(item.id)">
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { db, useLoadParking, deleteParking } from '@/firebase'
+import { db } from '@/firebase'
 import Toastify from 'toastify-js'
 
 export default {
@@ -81,29 +81,37 @@ export default {
             })
         },
         deleteParking(id) {
-            const docId = id
-            const parkingLotsRef = db.collection('parkingLots')
-            parkingLotsRef
-                .doc(docId)
-                .delete()
-                .then(() => {
-                    console.log('Document successfully deleted!')
-                    this.listParking = this.listParking.filter((car) => car.id !== id)
-                    Toastify({
-                        node: dom('#success-notification-content').clone().removeClass('hidden')[0],
-                        duration: 3000,
-                        newWindow: true,
-                        close: true,
-                        gravity: 'top',
-                        position: 'right',
-                        stopOnFocus: true
-                    }).showToast()
-                    // this.listParking = []
-                    // this.getParking()
-                })
-                .catch((error) => {
-                    console.error('Error removing document: ', error)
-                })
+            if (confirm('Bạn muốn xóa bãi đỗ xe này?')) {
+                const docId = id
+                const parkingLotsRef = db.collection('parkingLots')
+                parkingLotsRef
+                    .doc(docId)
+                    .delete()
+                    .then(() => {
+                        console.log('Document successfully deleted!')
+                        this.listParking = this.listParking.filter((car) => car.id !== id)
+                        Toastify({
+                            node: dom('#success-notification-content').clone().removeClass('hidden')[0],
+                            duration: 3000,
+                            newWindow: true,
+                            close: true,
+                            gravity: 'top',
+                            position: 'right',
+                            stopOnFocus: true
+                        }).showToast()
+                        // this.listParking = []
+                        // this.getParking()
+                    })
+                    .catch((error) => {
+                        console.error('Error removing document: ', error)
+                    })
+            }
+        },
+        updateParking(id) {
+            this.$router.push({ path: '/parking-management/update-parking', query: { id: id } })
+        },
+        goToCreateParking() {
+            this.$router.push('/parking-management/create-parking')
         }
     }
 }
