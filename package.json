@@ -34,7 +34,7 @@
     "dayjs": "^1.10.4",
     "docx-preview": "^0.1.15",
     "dropzone": "^5.7.6",
-    "firebase": "^9.16.0",
+    "firebase": "^9.18.0",
     "highlight.js": "^10.6.0",
     "js-beautify": "^1.13.5",
     "litepicker": "^2.0.11",
