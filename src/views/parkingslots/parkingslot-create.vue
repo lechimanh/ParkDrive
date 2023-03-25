@@ -1,7 +1,7 @@
 <template>
     <div ref="outSideClickNews">
         <h2 class="intro-y text-lg font-medium mt-4 mb-5">Tạo chổ đỗ xe</h2>
-        <div class="intro-y ml-20 w-80 p-3 box">
+        <div class="intro-y ml-20 w-80 p-3 box z-index">
             <div class="flex flex-row justify-left gap-5 pl-5 pr-5 form-create">
                 <div class="w-full create-layout">
                     <label for="regular-form-1" class="form-label text-base">Bãi đổ xe:</label>
@@ -15,53 +15,63 @@
             <div class="grid grid grid-cols-4 grap-10 justify-items-center">
                 <div>
                     <div class="text-center mb-5">A</div>
-                    <div v-for="item in slotA" :key="item.id" class="mb-4" @click="onToggle(item.id, item.location)">
+                    <div
+                        v-for="item in slotA"
+                        :key="item.id"
+                        class="mb-4"
+                        v-bind:style="{ 'pointer-events': item.type != '' ? 'none' : 'auto' }"
+                        @click="onToggle(item.id, item.location)"
+                    >
                         <div class="relative p-3 rounded-md box zoom-in">
                             <div
                                 class="text-center cursor-pointer block appearance-none px-5 border-transparent dark:text-white rounded-md border-0 bg-primary text-white font-medium w-full py-2"
                             >
                                 A{{ item.id }}
                             </div>
-                            <div class="block mt-3 font-medium text-center truncate">Crispy Mushroom</div>
+                            <div class="block mt-3 font-medium text-left truncate">Loại xe: {{ item.type }}</div>
+                            <div class="block mt-3 font-medium text-left truncate">Giá: {{ item.price }}</div>
                         </div>
                     </div>
                 </div>
                 <div>
                     <div class="text-center mb-5">B</div>
-                    <div v-for="item in slotB" :key="item.id" class="mb-4" @click="onToggle">
+                    <div v-for="item in slotB" :key="item.id" class="mb-4" @click="onToggle(item.id, item.location)">
                         <div class="relative p-3 rounded-md box zoom-in">
                             <div
                                 class="text-center cursor-pointer block appearance-none px-5 border-transparent dark:text-white rounded-md border-0 bg-primary text-white font-medium w-full py-2"
                             >
                                 B{{ item.id }}
                             </div>
-                            <div class="block mt-3 font-medium text-center truncate">Crispy Mushroom</div>
+                            <div class="block mt-3 font-medium text-left truncate">Loại xe: {{ item.type }}</div>
+                            <div class="block mt-3 font-medium text-left truncate">Giá: {{ item.price }}</div>
                         </div>
                     </div>
                 </div>
                 <div>
                     <div class="text-center mb-5">C</div>
-                    <div v-for="item in slotC" :key="item.id" class="mb-4" @click="onToggle">
+                    <div v-for="item in slotC" :key="item.id" class="mb-4" @click="onToggle(item.id, item.location)">
                         <div class="relative p-3 rounded-md box zoom-in">
                             <div
                                 class="text-center cursor-pointer block appearance-none px-5 border-transparent dark:text-white rounded-md border-0 bg-primary text-white font-medium w-full py-2"
                             >
                                 C{{ item.id }}
                             </div>
-                            <div class="block mt-3 font-medium text-center truncate">Crispy Mushroom</div>
+                            <div class="block mt-3 font-medium text-left truncate">Loại xe: {{ item.type }}</div>
+                            <div class="block mt-3 font-medium text-left truncate">Giá: {{ item.price }}</div>
                         </div>
                     </div>
                 </div>
                 <div>
                     <div class="text-center mb-5">D</div>
-                    <div v-for="item in slotD" :key="item.id" class="mb-4" @click="onToggle">
+                    <div v-for="item in slotD" :key="item.id" class="mb-4" @click="onToggle(item.id, item.location)">
                         <div class="relative p-3 rounded-md box zoom-in">
                             <div
                                 class="text-center cursor-pointer block appearance-none px-5 border-transparent dark:text-white rounded-md border-0 bg-primary text-white font-medium w-full py-2"
                             >
                                 D{{ item.id }}
                             </div>
-                            <div class="block mt-3 font-medium text-center truncate">Crispy Mushroom</div>
+                            <div class="block mt-3 font-medium text-left truncate">Loại xe: {{ item.type }}</div>
+                            <div class="block mt-3 font-medium text-left truncate">Giá: {{ item.price }}</div>
                         </div>
                     </div>
                 </div>
@@ -90,6 +100,7 @@
                                                 name="parkingLotRef"
                                                 :class="{ 'is-invalid': errors.parkingLotRef }"
                                                 v-model="parkingSlots.parkingLotRef"
+                                                disabled
                                             >
                                                 <option v-for="item in listParkingSlot" :key="item.id" :value="item.id">{{ item.name }}</option>
                                             </Field>
@@ -106,6 +117,7 @@
                                                 :class="{ 'is-invalid': errors.location }"
                                                 placeholder="Nhập vị trí"
                                                 v-model="parkingSlots.location"
+                                                disabled
                                             />
                                             <div class="invalid-feedback">{{ errors.location }}</div>
                                         </div>
@@ -162,7 +174,7 @@
 <script>
 import Toastify from 'toastify-js'
 
-import { db, createParkingSlot } from '@/firebase'
+import { db, createParkingSlot, getParkingSlot } from '@/firebase'
 
 import * as Yup from 'yup'
 import { Form, Field } from 'vee-validate'
@@ -184,81 +196,154 @@ export default {
                 price: '',
                 parkingLotRef: ''
             },
+            getParkingSlots: [],
             isOpen: false,
             slotA: [
                 {
                     id: 1,
-                    location: 'A1'
+                    location: 'A1',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 2,
-                    location: 'A2'
+                    location: 'A2',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 3,
-                    location: 'A3'
+                    location: 'A3',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 4,
-                    location: 'A4'
+                    location: 'A4',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 5,
-                    location: 'A5'
+                    location: 'A5',
+                    price: '',
+                    type: '',
+                    status: ''
                 }
             ],
             slotB: [
                 {
                     id: 1,
-                    location: 'A1'
+                    location: 'B1',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 2,
-                    location: 'A2'
+                    location: 'B2',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
                     id: 3,
-                    location: 'A3'
+                    location: 'B3',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 4
+                    id: 4,
+                    location: 'B3',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 5
+                    id: 5,
+                    location: 'B3',
+                    price: '',
+                    type: '',
+                    status: ''
                 }
             ],
             slotC: [
                 {
-                    id: 1
+                    id: 1,
+                    location: 'C1',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 2
+                    id: 2,
+                    location: 'C2',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 3
+                    id: 3,
+                    location: 'C3',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 4
+                    id: 4,
+                    location: 'C4',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 5
+                    id: 5,
+                    location: 'C5',
+                    price: '',
+                    type: '',
+                    status: ''
                 }
             ],
             slotD: [
                 {
-                    id: 1
+                    id: 1,
+                    location: 'D1',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 2
+                    id: 2,
+                    location: 'D2',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 3
+                    id: 3,
+                    location: 'D3',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 4
+                    id: 4,
+                    location: 'D4',
+                    price: '',
+                    type: '',
+                    status: ''
                 },
                 {
-                    id: 5
+                    id: 5,
+                    location: 'D5',
+                    price: '',
+                    type: '',
+                    status: ''
                 }
             ],
             listParkingSlot: []
@@ -266,14 +351,14 @@ export default {
     },
     created() {
         this.getParkingLot()
+        this.getParkingSlot()
+        this.fillParkingSlot()
     },
+
     methods: {
         onToggle(id, location) {
             this.isOpen = !this.isOpen
             this.parkingSlots.location = location
-        },
-        hehe() {
-            console.log(this.parkingSlots)
         },
 
         async getParkingLot() {
@@ -298,6 +383,81 @@ export default {
             }).showToast()
             this.parkingSlots = {}
             this.isOpen = !this.isOpen
+        },
+        async getParkingSlot() {
+            const parkingSlotsRef = db.collection('parkingSlots')
+
+            const res = await parkingSlotsRef.get()
+            res.forEach((doc) => {
+                const data = doc.data()
+                Object.assign(data, { id: doc.id })
+                this.getParkingSlots.push(data)
+            })
+            this.fillParkingSlot()
+        },
+        fillParkingSlot() {
+            this.getParkingSlots.map((item) => {
+                if (this.getParkingSlots != null) {
+                    if (item.location.charAt(0) == 'A') {
+                        this.slotA.map((item2, index) => {
+                            if (item.location == item2.location) {
+                                Object.assign(item2, { price: item.price, type: item.type })
+                            }
+                        })
+                    } else if (item.location.charAt(0) == 'B') {
+                        this.slotB.map((item3, index) => {
+                            if (item.location == item3.location) {
+                                Object.assign(item3, { price: item.price, type: item.type })
+                            }
+                        })
+                    } else if (item.location.charAt(0) == 'C') {
+                        this.slotC.map((item4, index) => {
+                            if (item.location == item4.location) {
+                                Object.assign(item4, { price: item.price, type: item.type })
+                            }
+                        })
+                    } else if (item.location.charAt(0) == 'D') {
+                        this.slotD.map((item5, index) => {
+                            if (item.location == item5.location) {
+                                Object.assign(item5, { price: item.price, type: item.type })
+                            }
+                        })
+                    }
+                }
+            })
+        },
+        async hehe() {
+            const parkingSlotsRef = db.collection('parkingSlots')
+
+            const res = await parkingSlotsRef.get()
+            res.forEach((doc) => {
+                const data = doc.data()
+                if (data.location.charAt(0) == 'A') {
+                    this.slotA.map((item2, index) => {
+                        if (data.location == item2.location) {
+                            Object.assign(item2, { price: data.price, type: data.type })
+                        }
+                    })
+                } else if (data.location.charAt(0) == 'B') {
+                    this.slotB.map((item2, index) => {
+                        if (data.location == item2.location) {
+                            Object.assign(item2, { price: data.price, type: data.type })
+                        }
+                    })
+                } else if (data.location.charAt(0) == 'C') {
+                    this.slotC.map((item2, index) => {
+                        if (data.location == item2.location) {
+                            Object.assign(item2, { price: data.price, type: data.type })
+                        }
+                    })
+                } else if (data.location.charAt(0) == 'D') {
+                    this.slotD.map((item2, index) => {
+                        if (data.location == item2.location) {
+                            Object.assign(item2, { price: data.price, type: data.type })
+                        }
+                    })
+                }
+            })
         }
     },
     computed: {
@@ -348,7 +508,9 @@ export default {
 .fade-leave-active {
     transition: opacity 500ms ease-out;
 }
-
+.z-index {
+    z-index: 0 !important;
+}
 @media screen and (max-width: 576px) {
     .modal-body .form-create {
         flex-direction: column;
