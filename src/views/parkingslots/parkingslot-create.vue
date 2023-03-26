@@ -5,8 +5,8 @@
             <div class="flex flex-row justify-left gap-5 pl-5 pr-5 form-create">
                 <div class="w-full create-layout">
                     <label for="regular-form-1" class="form-label text-base">Bãi đổ xe:</label>
-                    <select class="form-select" name="parkingLotRef" v-model="parkingSlots.parkingLotRef" @click="onParking">
-                        <option v-for="item in listParkingSlot" :key="item.id" :value="item.id">{{ item.name }}</option>
+                    <select class="form-select" name="parkingLotRef" v-model="parkingSlots.parkingLotRef" @click="onParking()">
+                        <option v-for="item in listParkingSlot" :key="item.id" :value="item.id" @click="hehe">{{ item.name }}</option>
                     </select>
                 </div>
             </div>
@@ -530,6 +530,7 @@ export default {
             },
             idUpdate: 0,
             getParkingSlots: [],
+            isSelectParking: 0,
             isSubmit: 0,
             isOpen: false,
             slotA: [
@@ -722,31 +723,34 @@ export default {
             this.isOpen = !this.isOpen
         },
         onParking() {
-            this.fillParkingSlot()
-            if (this.parkingSlots != '') {
-                this.slotA.map((item) => {
-                    item.type = ''
-                    item.price = ''
-                })
-                this.slotB.map((item) => {
-                    item.type = ''
-                    item.price = ''
-                })
-                this.slotC.map((item) => {
-                    item.type = ''
-                    item.price = ''
-                })
-                this.slotD.map((item) => {
-                    item.type = ''
-                    item.price = ''
-                })
+            if (this.isSelectParking != this.parkingSlots.parkingLotRef) {
                 this.getParkingSlot()
-                this.fillParkingSlot()
+                console.log(this.parkingSlots.parkingLotRef)
+                if (this.parkingSlots.parkingLotRef != '') {
+                    this.slotA.map((item) => {
+                        item.type = ''
+                        item.price = ''
+                    })
+                    this.slotB.map((item) => {
+                        item.type = ''
+                        item.price = ''
+                    })
+                    this.slotC.map((item) => {
+                        item.type = ''
+                        item.price = ''
+                    })
+                    this.slotD.map((item) => {
+                        item.type = ''
+                        item.price = ''
+                    })
+                    this.getParkingSlot()
+                }
+                this.isSelectParking = this.parkingSlots.parkingLotRef
             }
         },
         async getParkingSlot() {
+            this.getParkingSlots = []
             const parkingSlotsRef = db.collection('parkingSlots')
-
             const res = await parkingSlotsRef.get()
             res.forEach((doc) => {
                 const data = doc.data()
@@ -819,23 +823,22 @@ export default {
             })
         },
         updateSlot(id, location, type, price) {
-            console.log('object')
-            console.log(type)
             if (type != '') {
                 this.isOpen = !this.isOpen
                 this.isSubmit = 1
             } else {
                 this.isSubmit = 0
             }
-            console.log(this.isSubmit)
             this.parkingSlots.location = location
             this.parkingSlots.type = type
             this.parkingSlots.price = price
             this.idUpdate = id
         },
-        async updateSlots() {
-            console.log('object')
-            await updateParkingSlot(this.idUpdate, { ...this.parkingSlots })
+        async updateSlots(id) {
+            if (this.idUpdate != 0) {
+                id = this.idUpdate
+            }
+            await updateParkingSlot(id, { ...this.parkingSlots })
             Toastify({
                 node: dom('#success-notification-content').clone().removeClass('hidden')[0],
                 duration: 3000,
@@ -848,7 +851,7 @@ export default {
             this.isSubmit = 0
             this.isOpen = !this.isOpen
         },
-        deleteSlot(id, type) {
+        async deleteSlot(id, type) {
             if (type != '') {
                 if (confirm('Bạn muốn xóa bãi đỗ xe này?')) {
                     const docId = id
@@ -857,30 +860,25 @@ export default {
                         .doc(docId)
                         .delete()
                         .then(() => {
-                            console.log('Document successfully deleted!')
                             this.slotA.map((car) => {
-                                console.log(id)
                                 if (car.idSlot == id) {
                                     car.type = ''
                                     car.price = ''
                                 }
                             })
                             this.slotB.map((car) => {
-                                console.log(id)
                                 if (car.idSlot == id) {
                                     car.type = ''
                                     car.price = ''
                                 }
                             })
                             this.slotC.map((car) => {
-                                console.log(id)
                                 if (car.idSlot == id) {
                                     car.type = ''
                                     car.price = ''
                                 }
                             })
                             this.slotD.map((car) => {
-                                console.log(id)
                                 if (car.idSlot == id) {
                                     car.type = ''
                                     car.price = ''
